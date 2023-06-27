@@ -14,15 +14,14 @@ import {
   TableCaption,
   TableContainer,
   Tbody,
-  Td,
   Th,
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import { FormEvent, useMemo, useState } from "react";
-import { EditableField } from "./EditableField";
+import { FormEvent, useCallback, useMemo, useState } from "react";
+import { Row } from "./Row";
 
-type Expense = {
+export type Expense = {
   description: string;
   amount: number;
   date: Date;
@@ -44,14 +43,34 @@ export const App = () => {
     [values]
   );
 
-  const setItemValue = (v: string, idx: number, key: keyof Expense) => {
-    let parsedVal: string | number = v;
-    if (key == "amount") {
-      parsedVal = parseFloat(v);
-    }
-    values.splice(idx, 1, { ...values[idx], [key]: parsedVal });
-    setValue([...values]);
-  };
+  const setItemValue = useCallback(
+    (v: string, idx: number, key: keyof Expense) => {
+      let parsedVal: string | number = v;
+      if (key == "amount") {
+        parsedVal = parseFloat(v);
+      }
+      setValue((v) => {
+        v.splice(idx, 1, { ...v[idx], [key]: parsedVal });
+        return [...v];
+      });
+    },
+    []
+  );
+
+  const rows = useMemo(
+    () =>
+      values.map(({ date, description, amount }, idx) => (
+        <Row
+          key={idx}
+          date={date}
+          description={description}
+          amount={amount}
+          idx={idx}
+          setItemValue={setItemValue}
+        />
+      )),
+    [values, setItemValue]
+  );
 
   return (
     <Container>
@@ -100,27 +119,7 @@ export const App = () => {
               <Th isNumeric>amount</Th>
             </Tr>
           </Thead>
-          <Tbody>
-            {values.map(({ date, description, amount }, idx) => (
-              <Tr>
-                <Td>{date.toLocaleDateString()}</Td>
-                <Td>
-                  <EditableField
-                    value={description}
-                    setValue={(val: string) =>
-                      setItemValue(val, idx, "description")
-                    }
-                  />
-                </Td>
-                <Td isNumeric>
-                  <EditableField
-                    value={amount}
-                    setValue={(val: string) => setItemValue(val, idx, "amount")}
-                  />
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
+          <Tbody>{rows}</Tbody>
         </Table>
       </TableContainer>
     </Container>
