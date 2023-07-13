@@ -1,4 +1,4 @@
-import { Expense } from "./App";
+import { Expense } from "./Transactions";
 import { EditableField } from "./EditableField";
 import { Tr, Td } from "@chakra-ui/react";
 import React from "react";

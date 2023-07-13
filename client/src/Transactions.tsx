@@ -27,7 +27,7 @@ export type Expense = {
   date: Date;
 };
 
-export const App = () => {
+export const Transactions = () => {
   const [values, setValue] = useState<Array<Expense>>([]);
   const [description, setDescription] = useState<string>("");
   const [amount, setAmount] = useState<number>(0);

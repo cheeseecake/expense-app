@@ -1,6 +1,18 @@
 # Expense App
 
-## Components
+## Architecture
 
-1. Expenses
-- should accept a float (amount), time, and string (description).
+Traditional Structure:
+
+Client <-> Communication Protocol <-> Server <-> Database
+
+Heavy operations can be done server-side
+
+Client: tRPC: https://trpc.io/
+
+Server:https://trpc.io/docs/server/adapters/standalone
+
+Database:
+
+- Raw SQL connection/
+- Use an Object Relational Mapper like https://www.prisma.io/
