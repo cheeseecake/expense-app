@@ -1,15 +1,13 @@
-import { db } from './db';
-import { initTRPC } from '@trpc/server';
-import { createHTTPServer } from '@trpc/server/adapters/standalone';
-import cors from 'cors';
-import { z } from 'zod';
+import { initTRPC } from "@trpc/server";
+import { createHTTPServer } from "@trpc/server/adapters/standalone";
+import cors from "cors";
+import { z } from "zod";
+import { ACCOUNT_TYPES, db } from "./db";
 
 const t = initTRPC.create();
 
-const publicProcedure = t.procedure;
-const router = t.router;
-
-const accountType = ["ASSET","LIABILTY","INCOME","EXPENSE"] as const
+export const publicProcedure = t.procedure;
+export const router = t.router;
 
 const appRouter = router({
   accountList: publicProcedure.query(async () => {
@@ -26,7 +24,7 @@ const appRouter = router({
     return account;
   }),
   accountCreate: publicProcedure
-    .input(z.object({ name: z.string(), type: z.enum(accountType) }))
+    .input(z.object({ name: z.string(), type: z.enum(ACCOUNT_TYPES) }))
     .mutation(async (opts) => {
       const { input } = opts;
       //      ^?
@@ -37,8 +35,7 @@ const appRouter = router({
     }),
 });
 
-// Export type router type signature,
-
+/* Export only the type */
 export type AppRouter = typeof appRouter;
 
 // create server
@@ -46,7 +43,7 @@ createHTTPServer({
   middleware: cors(),
   router: appRouter,
   createContext() {
-    console.log('context 3');
+    console.log("context 3");
     return {};
   },
 }).listen(2022);

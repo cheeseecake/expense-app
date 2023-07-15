@@ -18,7 +18,13 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import { FormEvent, useCallback, useMemo, useState } from "react";
+import {
+  FormEvent,
+  SyntheticEvent,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { Row } from "./Row";
 
 export type Expense = {
@@ -91,7 +97,9 @@ export const Transactions = () => {
                 <Input
                   type="description"
                   placeholder="Whipping Cream 1L"
-                  onChange={(e) => setDescription(e.currentTarget.value)}
+                  onChange={(e: SyntheticEvent<HTMLInputElement>) =>
+                    setDescription(e.currentTarget.value)
+                  }
                 />
               </FormControl>
               <FormControl mt={6}>
@@ -99,7 +107,9 @@ export const Transactions = () => {
                 <Input
                   type="amount"
                   placeholder="11.80"
-                  onChange={(e) => setAmount(parseFloat(e.currentTarget.value))}
+                  onChange={(e: SyntheticEvent<HTMLInputElement>) =>
+                    setAmount(parseFloat(e.currentTarget.value))
+                  }
                 />
               </FormControl>
               <Button width="full" mt={4} type="submit" onClick={handleSubmit}>

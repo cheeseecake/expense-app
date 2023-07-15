@@ -1,31 +1,22 @@
-import { trpc } from "./utils/trpc";
-import { FormEvent, useState } from "react";
 import {
-  Card,
-  CardBody,
-  Text,
-  Container,
-  Button,
   Box,
+  Button,
+  Container,
   Flex,
   FormControl,
-  FormLabel,
   Heading,
   Input,
-  RadioGroup,
   Radio,
+  RadioGroup,
   Stack,
 } from "@chakra-ui/react";
-
-export type Account = {
-  name: string;
-  id: number;
-  type: "ASSET" | "LIABILTY" | "INCOME" | "EXPENSE";
-};
+import { FormEvent, SyntheticEvent, useState } from "react";
+import { AccountType } from "../../server/db";
+import { trpc } from "./utils/trpc";
 
 export const Accounts = () => {
   const [name, setName] = useState<string>("");
-  const [type, setType] = useState("EXPENSE");
+  const [type, setType] = useState<AccountType>("Something Invalid");
   const accountList = trpc.accountList.useQuery();
   const accountCreator = trpc.accountCreate.useMutation();
 
@@ -57,7 +48,9 @@ export const Accounts = () => {
                 <Input
                   type="name"
                   placeholder="Food"
-                  onChange={(e) => setName(e.currentTarget.value)}
+                  onChange={(e: SyntheticEvent<HTMLInputElement>) =>
+                    setName(e.currentTarget.value)
+                  }
                 />
               </FormControl>
 
