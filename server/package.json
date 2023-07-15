@@ -11,6 +11,7 @@
   "dependencies": {
     "@trpc/server": "^10.34.0",
     "cors": "^2.8.5",
+    "puppeteer": "^20.8.2",
     "zod": "^3.0.0"
   },
   "devDependencies": {

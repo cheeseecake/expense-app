@@ -1,0 +1,17 @@
+services:
+  browserless:
+    container_name: browserless
+    image: browserless/chrome
+    environment:
+      TZ: Asia/Singapore
+      DEFAULT_STEALTH: 'true'
+
+  # We only run the server. The client should be hosted on Github Pages.
+  node:
+    container_name: node
+    image: node:latest
+    environment:
+      TZ: Asia/Singapore
+    volumes:
+      - .:/workspace
+    command: /bin/sh -c "cd /workspace && npm run dev:server"
