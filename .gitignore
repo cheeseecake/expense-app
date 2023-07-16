@@ -26,3 +26,5 @@ dist-ssr
 package-lock.json
 package-lock.json
 package-lock.json
+prisma/expense-app.db
+prisma/expense-app.db-journal

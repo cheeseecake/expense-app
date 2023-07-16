@@ -15,15 +15,21 @@ import { AccountType } from "../../server/db";
 import { trpc } from "./utils/trpc";
 
 export const Accounts = () => {
+  const utils = trpc.useContext();
   const [name, setName] = useState<string>("");
-  const [type, setType] = useState<AccountType>("Something Invalid");
-  const accountList = trpc.accountList.useQuery();
-  const accountCreator = trpc.accountCreate.useMutation();
+  const [type, setType] = useState<AccountType>("ASSET");
+  const accountList = trpc.getAccounts.useQuery();
+  const accountCreator = trpc.createAccount.useMutation({
+    onSuccess: () => {
+      utils.getAccounts.invalidate();
+    },
+  });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     accountCreator.mutate({ name: name, type: type });
   };
+  // accountList.data?.map((item) => <Card>{item.name}</Card>);
 
   return (
     <Container>
@@ -53,7 +59,6 @@ export const Accounts = () => {
                   }
                 />
               </FormControl>
-
               <Button width="full" mt={4} type="submit" onClick={handleSubmit}>
                 Add
               </Button>
@@ -61,7 +66,6 @@ export const Accounts = () => {
           </Box>
         </Box>
       </Flex>
-
       <pre>{JSON.stringify(accountList.data, null, 2)}</pre>
     </Container>
   );
