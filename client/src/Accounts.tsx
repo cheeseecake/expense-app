@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { FormEvent, SyntheticEvent, useState } from "react";
 import { AccountType } from "../../server/db";
+import { GetDbsStatementButton } from "./GetDbsStatementButton";
 import { trpc } from "./utils/trpc";
 
 export const Accounts = () => {
@@ -33,6 +34,7 @@ export const Accounts = () => {
 
   return (
     <Container>
+      <GetDbsStatementButton />
       <Flex width="full" align="center" justifyContent="center">
         <Box p={2}>
           <Box textAlign="center">
@@ -41,7 +43,10 @@ export const Accounts = () => {
           <Box my={4} textAlign="left">
             <form>
               <FormControl>
-                <RadioGroup onChange={setType} value={type}>
+                <RadioGroup
+                  onChange={(type) => setType(type as AccountType)}
+                  value={type}
+                >
                   <Stack direction="row">
                     <Radio value="ASSET">ASSET</Radio>
                     <Radio value="LIABILTY">LIABILTY</Radio>

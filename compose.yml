@@ -1,10 +1,13 @@
 services:
   browserless:
-    container_name: browserless
+    container_name: expense-browserless
     image: browserless/chrome
     environment:
       TZ: Asia/Singapore
       DEFAULT_STEALTH: 'true'
+      # Where Chrome downloads files, within the browserless container
+      # This must be the same as the downloadPath in puppeteer
+      WORKSPACE_DIR: /tmp
 
   # We only run the server. The client should be hosted on Github Pages.
   node:

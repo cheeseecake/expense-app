@@ -1,13 +1,13 @@
+import { PrismaClient } from "@prisma/client";
 import { initTRPC } from "@trpc/server";
 import { createHTTPServer } from "@trpc/server/adapters/standalone";
 import cors from "cors";
 import { z } from "zod";
-import { ACCOUNT_TYPES, db } from "./db";
-import { PrismaClient } from "@prisma/client";
+import { ACCOUNT_TYPES } from "./db";
+import { getDbsStatementAsCsv, getDbsStatementSchema } from "./getDbsStatement";
 
 const t = initTRPC.create();
 const prisma = new PrismaClient();
-
 
 export const publicProcedure = t.procedure;
 export const router = t.router;
@@ -23,7 +23,7 @@ const appRouter = router({
     const { input } = opts;
     //      ^?
     // Retrieve the account with the given ID
-    const account = await prisma.account.findUnique ({
+    const account = await prisma.account.findUnique({
       where: {
         id: input,
       },
@@ -38,12 +38,15 @@ const appRouter = router({
       // Create a new account in the database
       const account = await prisma.account.create({
         data: {
-          ...input
-        }
+          ...input,
+        },
       });
       //    ^?
       return account;
-    })
+    }),
+  getDbsStatementAsCsv: publicProcedure
+    .input(getDbsStatementSchema)
+    .mutation(async ({ input }) => await getDbsStatementAsCsv(input)),
 });
 
 /* Export only the type */
@@ -54,7 +57,6 @@ createHTTPServer({
   middleware: cors(),
   router: appRouter,
   createContext() {
-    console.log("context 3");
     return {};
   },
 }).listen(2022);
