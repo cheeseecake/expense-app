@@ -3,8 +3,9 @@ import { initTRPC } from "@trpc/server";
 import { createHTTPServer } from "@trpc/server/adapters/standalone";
 import cors from "cors";
 import { z } from "zod";
-import { ACCOUNT_TYPES } from "./db";
 import { getDbsStatementAsCsv, getDbsStatementSchema } from "./getDbsStatement";
+import { AccountType } from "./types";
+
 
 const t = initTRPC.create();
 const prisma = new PrismaClient();
@@ -16,12 +17,10 @@ const appRouter = router({
   getAccounts: publicProcedure.query(async () => {
     // Retrieve accounts from a datasource, this is an imaginary database
     const accounts = await prisma.account.findMany();
-    //    ^?
     return accounts;
   }),
   getAccountById: publicProcedure.input(z.number()).query(async (opts) => {
     const { input } = opts;
-    //      ^?
     // Retrieve the account with the given ID
     const account = await prisma.account.findUnique({
       where: {
@@ -30,8 +29,20 @@ const appRouter = router({
     });
     return account;
   }),
+  deleteAccountById: publicProcedure
+  .input(z.number())
+  .mutation(async (opts) => {
+    const { input } = opts;
+    // Delete the account with the given ID
+    const account = await prisma.account.delete ({
+      where: {
+        id: input,
+      },
+    });
+    return account;
+  }),
   createAccount: publicProcedure
-    .input(z.object({ name: z.string(), type: z.enum(ACCOUNT_TYPES) }))
+    .input(z.object({ name: z.string(), type: z.nativeEnum( AccountType ) }))
     .mutation(async (opts) => {
       const { input } = opts;
       //      ^?

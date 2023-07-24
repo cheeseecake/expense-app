@@ -1,77 +1,57 @@
 import {
-  Box,
-  Button,
   Container,
-  Flex,
-  FormControl,
+  SimpleGrid,
   Heading,
-  Input,
-  Radio,
-  RadioGroup,
+  Text,
   Stack,
+  Card,
+  CardBody,
 } from "@chakra-ui/react";
-import { FormEvent, SyntheticEvent, useState } from "react";
-import { AccountType } from "../../server/db";
+
 import { GetDbsStatementButton } from "./GetDbsStatementButton";
+import { AddAccountButton } from "./AddAccountButton";
+
 import { trpc } from "./utils/trpc";
 
 export const Accounts = () => {
   const utils = trpc.useContext();
-  const [name, setName] = useState<string>("");
-  const [type, setType] = useState<AccountType>("ASSET");
+
   const accountList = trpc.getAccounts.useQuery();
-  const accountCreator = trpc.createAccount.useMutation({
+
+  const accountRemover = trpc.deleteAccountById.useMutation({
+    // Refresh acccounts upon mutation
     onSuccess: () => {
       utils.getAccounts.invalidate();
     },
   });
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    accountCreator.mutate({ name: name, type: type });
+  const handleDelete = (id: number) => {
+    accountRemover.mutate(id);
   };
-  // accountList.data?.map((item) => <Card>{item.name}</Card>);
 
+  const cards = accountList.data?.map(({ name, type, id }, idx) => (
+    <Card>
+      <CardBody>
+        <Heading size="md">{type}</Heading>
+        <Text>
+          {id}. {name}
+        </Text>
+        {/* <Button width="full" mt={4} type="submit" onClick={handleDelete(id)}>
+          X
+        </Button> */}
+      </CardBody>
+    </Card>
+  ));
   return (
     <Container>
-      <GetDbsStatementButton />
-      <Flex width="full" align="center" justifyContent="center">
-        <Box p={2}>
-          <Box textAlign="center">
-            <Heading>Accounts</Heading>
-          </Box>
-          <Box my={4} textAlign="left">
-            <form>
-              <FormControl>
-                <RadioGroup
-                  onChange={(type) => setType(type as AccountType)}
-                  value={type}
-                >
-                  <Stack direction="row">
-                    <Radio value="ASSET">ASSET</Radio>
-                    <Radio value="LIABILTY">LIABILTY</Radio>
-                    <Radio value="EXPENSE">EXPENSE</Radio>
-                    <Radio value="INCOME">INCOME</Radio>
-                  </Stack>
-                </RadioGroup>
-              </FormControl>
-              <FormControl>
-                <Input
-                  type="name"
-                  placeholder="Food"
-                  onChange={(e: SyntheticEvent<HTMLInputElement>) =>
-                    setName(e.currentTarget.value)
-                  }
-                />
-              </FormControl>
-              <Button width="full" mt={4} type="submit" onClick={handleSubmit}>
-                Add
-              </Button>
-            </form>
-          </Box>
-        </Box>
-      </Flex>
-      <pre>{JSON.stringify(accountList.data, null, 2)}</pre>
+      <Stack spacing={4} direction="row" align="center">
+        <GetDbsStatementButton />
+        <AddAccountButton />
+      </Stack>
+      <Heading>Accounts</Heading>
+      <SimpleGrid spacing={4} columns={3}>
+        {cards}
+      </SimpleGrid>
     </Container>
   );
 };
