@@ -26,6 +26,7 @@ import {
   useState,
 } from "react";
 import { Row } from "./Row";
+import {AddTransactionButton } from "./AddTransactionButton";
 
 export type Expense = {
   description: string;
@@ -89,6 +90,7 @@ export const Transactions = () => {
               <StatNumber>{total}</StatNumber>
               <StatLabel>{date.toLocaleDateString()}</StatLabel>
             </Stat>
+            <AddTransactionButton />
           </Box>
           <Box my={4} textAlign="left">
             <form>
