@@ -55,6 +55,33 @@ const appRouter = router({
       //    ^?
       return account;
     }),
+    getTransactions: publicProcedure.query(async () => {
+      // Retrieve transactions
+      const transactions = await prisma.transaction.findMany();
+      return transactions;
+    }),
+    getTransactionsById: publicProcedure.input(z.number()).query(async (opts) => {
+      const { input } = opts;
+      // Retrieve the account with the given ID
+      const transaction = await prisma.transaction.findUnique({
+        where: {
+          id: input,
+        },
+      });
+      return transaction;
+    }),
+    deleteTransactionById: publicProcedure
+      .input(z.number())
+      .mutation(async (opts) => {
+        const { input } = opts;
+        // Delete the account with the given ID
+        const transaction = await prisma.transaction.delete({
+          where: {
+            id: input,
+          },
+        });
+        return transaction;
+      }),
   getDbsStatementAsCsv: publicProcedure
     .input(getDbsStatementSchema)
     .mutation(async ({ input }) => await getDbsStatementAsCsv(input)),
