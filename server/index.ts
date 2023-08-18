@@ -19,12 +19,19 @@ export const router = t.router;
 
 const appRouter = router({
   getAccounts: publicProcedure.query(async () => {
-    const accounts = await prisma.account.findMany({
-      include: {
-        JournalEntry: true, // Include the related journal entries
+    const counts = await prisma.journalEntry.groupBy({
+      by: ["accountId"],
+      _sum: {
+        amount: true,
       },
     });
-    return accounts;
+
+    const accounts = await prisma.account.findMany();
+
+    return accounts.map((acc) => ({
+      ...acc,
+      _sum: counts.find((c) => c.accountId === acc.id)?._sum.amount,
+    }));
   }),
   getAccountsByType: publicProcedure.input(z.string()).query(async (opts) => {
     const { input } = opts;
