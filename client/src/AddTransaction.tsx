@@ -9,6 +9,7 @@ import {
   Select,
   NumberInputField,
   NumberInput,
+  useToast,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,21 +19,23 @@ import { transactionSchema } from "./validationSchema";
 
 export const AddTransaction = () => {
   const accountList = trpc.getAccounts.useQuery();
+  const toast = useToast();
   const utils = trpc.useContext();
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       createdAt: new Date().toLocaleDateString("fr-CA"),
-      description: "Purchased ... with ...",
+      description: "Purchased XXX",
       counterparty: "ABC",
       accounts: [
-        { accountId: 35, amount: 5 },
-        { accountId: 249, amount: -5 },
+        { accountId: 1, amount: 5 },
+        { accountId: 2, amount: -5 },
       ],
     },
   });
@@ -43,14 +46,29 @@ export const AddTransaction = () => {
   const txnCreator = trpc.createTransaction.useMutation({
     onSuccess: () => {
       utils.getTransactions.invalidate();
+      toast({
+        title: "Success",
+        position: "top",
+        description: "Transaction created!",
+        status: "success",
+      });
+      reset();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        position: "top",
+        description: error.message,
+        status: "error",
+        isClosable: true,
+        duration: null,
+      });
     },
   });
-  const onInvalid = (errors) => console.error(errors);
+
   const onSubmit = (data: z.infer<typeof transactionSchema>) => {
     txnCreator.mutate(data);
-  }
-    
-  
+  };
 
   return (
     <>
@@ -86,7 +104,7 @@ export const AddTransaction = () => {
             <Spacer />
             <Button
               onClick={() => {
-                append({ name: 250, amount: 10 });
+                append({ accountId: 1, amount: 10 });
               }}
             >
               +
@@ -131,7 +149,7 @@ export const AddTransaction = () => {
             width="full"
             mt={4}
             type="submit"
-            onClick={handleSubmit(onSubmit, onInvalid)}
+            onClick={handleSubmit(onSubmit)}
           >
             Create
           </Button>
