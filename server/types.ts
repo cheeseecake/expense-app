@@ -4,8 +4,8 @@
  */
 
 export enum AccountType {
-  ASSET = 'ASSET',
-  LIABILTY = 'LIABILTY',
-  INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE',
+  ASSET = "ASSET",
+  LIABILTY = "LIABILITY",
+  INCOME = "INCOME",
+  EXPENSE = "EXPENSE",
 }
