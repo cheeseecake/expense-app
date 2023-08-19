@@ -1,10 +1,9 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { initTRPC } from "@trpc/server";
 import { createHTTPServer } from "@trpc/server/adapters/standalone";
 import cors from "cors";
 import { z } from "zod";
 import { getDbsStatementAsCsv, getDbsStatementSchema } from "./getDbsStatement";
-import { AccountType } from "./types";
 import {
   transactionSchema,
   accountSchema,
@@ -19,19 +18,29 @@ export const router = t.router;
 
 const appRouter = router({
   getAccounts: publicProcedure.query(async () => {
-    const counts = await prisma.journalEntry.groupBy({
-      by: ["accountId"],
-      _sum: {
-        amount: true,
+    const groupedResults = await prisma.account.findMany({
+      orderBy: [
+        {
+          type: "asc",
+        },
+        {
+          name: "asc",
+        },
+      ],
+      include: {
+        JournalEntry: true,
       },
     });
 
-    const accounts = await prisma.account.findMany();
-
-    return accounts.map((acc) => ({
-      ...acc,
-      _sum: counts.find((c) => c.accountId === acc.id)?._sum.amount,
+    const accounts = groupedResults.map((item) => ({
+      id: item.id,
+      name: item.name,
+      type: item.type,
+      currency: item.currency,
+      sum: item.JournalEntry.reduce((sum, je) => sum + je.amount, 0),
     }));
+
+    return accounts;
   }),
   getAccountsByType: publicProcedure.input(z.string()).query(async (opts) => {
     const { input } = opts;
@@ -71,6 +80,11 @@ const appRouter = router({
   getTransactions: publicProcedure.query(async () => {
     // Retrieve transactions
     const transactions = await prisma.transaction.findMany({
+      orderBy: [
+        {
+          createdAt: "desc",
+        },
+      ],
       include: {
         JournalEntry: true, // Include the related journal entries
       },
@@ -110,7 +124,7 @@ const appRouter = router({
         data: {
           createdAt: input.createdAt,
           description: input.description,
-          counterParty: input.counterparty,
+          counterparty: input.counterparty,
           JournalEntry: {
             create: input.accounts,
           },

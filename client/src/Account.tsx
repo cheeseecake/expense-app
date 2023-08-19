@@ -7,18 +7,19 @@ type InputProps = {
   name: string;
   type: AccountType;
   sum: number;
+  currency: string;
   id: number;
   handleDelete: (id: number) => void;
 };
 
 export const Account = React.memo(
-  ({ name, type, sum, id, handleDelete }: InputProps) => {
+  ({ name, type, currency, sum, id, handleDelete }: InputProps) => {
     return (
       <Card p={0} size="sm">
         <CardBody>
           <Flex>
             <Heading size="sm">
-              [{type[0]}] {name} $({sum})
+              [{type[0]}] {name} {currency} {sum.toFixed(2).toLocaleString()}
             </Heading>
             <IconButton
               variant="ghost"

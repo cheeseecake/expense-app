@@ -35,11 +35,12 @@ export const Accounts = () => {
 
   return (
     <SimpleGrid spacing={4} columns={1}>
-      {accountList.data?.map(({ name, type, _sum, id }) => (
+      {accountList.data?.map(({ name, type, currency, sum, id }) => (
         <Account
           name={name}
+          currency={currency}
           type={type as AccountType}
-          sum={_sum}
+          sum={sum}
           key={id}
           id={id}
           handleDelete={handleDelete}

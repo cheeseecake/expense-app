@@ -13,16 +13,20 @@ datasource db {
 model Account {
   id           Int            @id @default(autoincrement())
   type         String
+  currency     String
   name         String
   JournalEntry JournalEntry[]
+
+  @@unique([type, currency, name])
 }
 
 model Transaction {
   id           Int            @id @default(autoincrement())
   createdAt    DateTime       @default(now())
   description  String
-  counterParty String
+  counterparty String
   JournalEntry JournalEntry[]
+
 }
 
 model JournalEntry {

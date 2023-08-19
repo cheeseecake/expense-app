@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { trpc } from "./utils/trpc";
-import { transactionSchema } from "./validationSchema";
+import { transactionSchema } from "../../server/types";
 
 export const AddTransaction = () => {
   const accountList = trpc.getAccounts.useQuery();

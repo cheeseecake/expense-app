@@ -10,9 +10,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { trpc } from "./utils/trpc";
-import { accountSchema } from "./validationSchema";
 import { AccountTypeRadios } from "./AccountTypeRadios";
-import { AccountType } from "../../server/types";
+import { AccountType, accountSchema } from "../../server/types";
 
 export const AddAccount = () => {
   const utils = trpc.useContext();
@@ -27,6 +26,7 @@ export const AddAccount = () => {
     resolver: zodResolver(accountSchema),
     defaultValues: {
       name: "",
+      currency: "SGD",
       type: AccountType.ASSET,
     },
   });
@@ -65,6 +65,10 @@ export const AddAccount = () => {
           <FormControl>
             <FormLabel>Type</FormLabel>
             <AccountTypeRadios control={control} name="type" />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Currency</FormLabel>
+            <Input {...register("currency")} />
           </FormControl>
           <FormControl>
             <FormLabel>Account Name</FormLabel>
