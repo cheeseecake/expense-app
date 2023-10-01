@@ -2,45 +2,46 @@ import {
   Container,
   Spacer,
   Flex,
-  Grid,
+  Tabs,
+  Tab,
   Heading,
-  GridItem,
+  TabPanel,
+  TabList,
+  TabPanels,
 } from "@chakra-ui/react";
 
-import { GetDbsStatementButton } from "./GetDbsStatementButton";
-import { Form } from "./Form";
-import { Transactions } from "./Transactions";
-import { Accounts } from "./Accounts";
+import { GetDbsStatementButton } from "./Forms/GetDbsStatementButton";
+import { Form } from "./Forms/Form";
+import { IncomeExpense } from "./IncomeExpense/IncomeExpense";
 import { useState } from "react";
+import { Accounts } from "./AssetsLiabilities/AssetsLiabilities";
 
 export const Home = () => {
   const [date] = useState<Date>(new Date());
 
   return (
-    <Container maxW="80%" centerContent>
-      <Flex>
+    <Container maxW="80%" padding="4" centerContent>
+      <Flex gap={4} w="100%">
         <Heading>{date.toDateString()}</Heading>
-      </Flex>
-      <Flex gap={4}>
-        <Form />
         <Spacer />
+        <Form />
         <GetDbsStatementButton />
       </Flex>
-      <Flex>
-        <Grid
-          templateRows="repeat(1, 1fr)"
-          templateColumns="repeat(5, 1fr)"
-          gap={4}
-        >
-          <GridItem rowSpan={1} colSpan={1}>
-            Accounts
-            <Accounts />
-          </GridItem>
-          <GridItem rowSpan={1} colSpan={4}>
-            Transactions
-            <Transactions />
-          </GridItem>
-        </Grid>
+      <Flex w="100%">
+        <Tabs w="100%" variant="enclosed">
+          <TabList>
+            <Tab>Income & Expenses</Tab>
+            <Tab>Assets & Liabilities</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <IncomeExpense />
+            </TabPanel>
+            <TabPanel>
+              <Accounts />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </Flex>
     </Container>
   );

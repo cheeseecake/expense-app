@@ -14,8 +14,8 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
-import { trpc } from "./utils/trpc";
-import { transactionSchema } from "../../server/types";
+import { trpc } from "../utils/trpc";
+import { transactionSchema } from "../../../server/types";
 
 export const AddTransaction = () => {
   const accountList = trpc.getAccounts.useQuery();
@@ -33,7 +33,7 @@ export const AddTransaction = () => {
       createdAt: new Date().toLocaleDateString("fr-CA"),
       description: "Purchased XXX",
       counterparty: "ABC",
-      accounts: [
+      JournalEntry: [
         { accountId: 1, amount: 5 },
         { accountId: 2, amount: -5 },
       ],
@@ -41,7 +41,7 @@ export const AddTransaction = () => {
   });
   const { fields, remove, append } = useFieldArray({
     control,
-    name: "accounts",
+    name: "JournalEntry",
   });
   const txnCreator = trpc.createTransaction.useMutation({
     onSuccess: () => {
@@ -67,6 +67,7 @@ export const AddTransaction = () => {
   });
 
   const onSubmit = (data: z.infer<typeof transactionSchema>) => {
+    console.log(data);
     txnCreator.mutate(data);
   };
 
@@ -100,7 +101,9 @@ export const AddTransaction = () => {
           </Flex>
           <Flex>
             <FormLabel>Accounts</FormLabel>
-            {errors.accounts?.message && <p>{errors.accounts?.message}</p>}
+            {errors.JournalEntry?.message && (
+              <p>{errors.JournalEntry?.message}</p>
+            )}
             <Spacer />
             <Button
               onClick={() => {
@@ -116,7 +119,7 @@ export const AddTransaction = () => {
                 <Flex key={item.id} gap="2" mt="2">
                   <Select
                     placeholder="Select account"
-                    {...register(`accounts.${index}.accountId`)}
+                    {...register(`JournalEntry.${index}.accountId`)}
                   >
                     {accountList.data?.map(({ name, id }) => (
                       <option key={id} value={id}>
@@ -128,13 +131,13 @@ export const AddTransaction = () => {
 
                   <NumberInput>
                     <NumberInputField
-                      {...register(`accounts.${index}.amount`, {
+                      {...register(`JournalEntry.${index}.amount`, {
                         required: true,
                       })}
                     />
-                    {errors?.accounts?.[index]?.amount?.message && (
+                    {errors?.JournalEntry?.[index]?.amount?.message && (
                       <p style={{ color: "red" }}>
-                        {errors?.accounts?.[index]?.amount?.message}
+                        {errors?.JournalEntry?.[index]?.amount?.message}
                       </p>
                     )}
                   </NumberInput>

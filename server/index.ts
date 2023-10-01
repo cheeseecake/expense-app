@@ -4,10 +4,7 @@ import { createHTTPServer } from "@trpc/server/adapters/standalone";
 import cors from "cors";
 import { z } from "zod";
 import { getDbsStatementAsCsv, getDbsStatementSchema } from "./getDbsStatement";
-import {
-  transactionSchema,
-  accountSchema,
-} from "../client/src/validationSchema";
+import { transactionSchema, accountSchema } from "./types";
 
 const t = initTRPC.create();
 
@@ -68,10 +65,13 @@ const appRouter = router({
 
   createAccount: publicProcedure.input(accountSchema).mutation(async (opts) => {
     const { input } = opts;
+    console.log(input);
     // Create a new account in the database
     const account = await prisma.account.create({
       data: {
-        ...input,
+        currency: input.currency,
+        type: input.type,
+        name: input.name,
       },
     });
     return account;
@@ -126,7 +126,7 @@ const appRouter = router({
           description: input.description,
           counterparty: input.counterparty,
           JournalEntry: {
-            create: input.accounts,
+            create: input.JournalEntry,
           },
         },
         include: {

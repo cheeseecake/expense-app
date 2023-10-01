@@ -12,14 +12,13 @@ export enum AccountType {
   EXPENSE = "EXPENSE",
 }
 
-
 export const transactionSchema = z.object({
   createdAt: z.coerce
     .date()
     .min(new Date("1900-01-01"), { message: "Invalid date!" }),
   description: z.string().min(10, { message: "Required" }).trim(),
   counterparty: z.string().min(1, { message: "Required" }).trim(),
-  accounts: z
+  JournalEntry: z
     .array(
       z.object({
         accountId: z.coerce
@@ -32,8 +31,9 @@ export const transactionSchema = z.object({
       })
     )
     .refine(
-      (accounts) =>
-        accounts.reduce((total, account) => total + account.amount, 0) === 0,
+      (JournalEntry) =>
+        JournalEntry.reduce((total, account) => total + account.amount, 0) ===
+        0,
       {
         message: "The sum of all amounts should be 0",
       }
@@ -44,6 +44,8 @@ export const accountSchema = z.object({
   name: z.string({
     required_error: "Name is required",
   }),
-  currency: z.string(),
+  currency: z.string({
+    required_error: "Currency is required",
+  }),
   type: z.nativeEnum(AccountType),
 });

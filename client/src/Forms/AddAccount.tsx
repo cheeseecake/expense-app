@@ -9,9 +9,9 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { trpc } from "./utils/trpc";
+import { trpc } from "../utils/trpc";
 import { AccountTypeRadios } from "./AccountTypeRadios";
-import { AccountType, accountSchema } from "../../server/types";
+import { AccountType, accountSchema } from "../../../server/types";
 
 export const AddAccount = () => {
   const utils = trpc.useContext();

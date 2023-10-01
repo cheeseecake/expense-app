@@ -1,8 +1,9 @@
 import { PropsWithChildren, forwardRef } from "react";
 import { Button, Box, Flex, useRadio, useRadioGroup } from "@chakra-ui/react";
 import { Control, useController } from "react-hook-form";
-import { accountSchema } from "./validationSchema";
 import { z } from "zod";
+
+import {  accountSchema } from "../../../server/types";
 
 const CustomRadio = forwardRef(
   ({ children, ...props }: PropsWithChildren, ref) => {

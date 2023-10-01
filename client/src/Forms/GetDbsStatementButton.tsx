@@ -14,8 +14,8 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { IgetDbsStatementSchema } from "../../server/getDbsStatement";
-import { trpc } from "./utils/trpc";
+import type { IgetDbsStatementSchema } from "../../../server/getDbsStatement";
+import { trpc } from "../utils/trpc";
 
 export const GetDbsStatementButton = () => {
   const getDbsStatement = trpc.getDbsStatementAsCsv.useMutation();

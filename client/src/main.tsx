@@ -7,6 +7,8 @@ import {
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App.js";
+import { MantineProvider, createTheme } from "@mantine/core";
+import '@mantine/core/styles.css';
 
 const config: ThemeConfig = {
   initialColorMode: "dark",
@@ -17,9 +19,11 @@ const theme = extendTheme({ config });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <ChakraProvider theme={theme}>
-      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-      <App />
-    </ChakraProvider>
+    <MantineProvider defaultColorScheme='dark'>
+      <ChakraProvider theme={theme}>
+        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+        <App />
+      </ChakraProvider>
+    </MantineProvider>
   </React.StrictMode>
 );

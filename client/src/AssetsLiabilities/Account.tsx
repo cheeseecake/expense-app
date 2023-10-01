@@ -1,6 +1,6 @@
 import { Flex, Card, CardBody, Heading, IconButton } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
-import { AccountType } from "../../server/types";
+import { AccountType } from "../../../server/types";
 import React from "react";
 
 type InputProps = {
