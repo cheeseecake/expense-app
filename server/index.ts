@@ -89,7 +89,42 @@ const appRouter = router({
         JournalEntry: true, // Include the related journal entries
       },
     });
-    return transactions;
+    const accountIds = transactions.flatMap((obj) =>
+      obj.JournalEntry.map((nestedObj) => nestedObj.accountId)
+    );
+    const accounts = await prisma.account.findMany({
+      where: {
+        id: {
+          in: accountIds,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+      },
+    });
+
+    const accountMap = {};
+    accounts.forEach((account) => {
+      accountMap[account.id] = account.name;
+    });
+    const accountTypeMap = {};
+    accounts.forEach((account) => {
+      accountTypeMap[account.id] = account.type;
+    });
+    // Associate the account name with each transaction
+    const transactions_w_account_name = transactions.map((obj) => {
+      const updatedListOfObjects = obj.JournalEntry.map((nestedObj) => {
+        const name = accountMap[nestedObj.accountId];
+        const type = accountTypeMap[nestedObj.accountId];
+        return { ...nestedObj, name: name, type: type }; // Add the 'name' key and value
+      });
+
+      return { ...obj, JournalEntry: updatedListOfObjects };
+    });
+
+    return transactions_w_account_name;
   }),
 
   getTransactionsById: publicProcedure.input(z.number()).query(async (opts) => {

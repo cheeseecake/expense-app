@@ -18,7 +18,7 @@ type InputProps = {
   };
 };
 
-export const Transaction = React.memo(
+export const JournalEntry = React.memo(
   React.forwardRef<HTMLDivElement, InputProps>(
     ({ item, virtualItem }: InputProps, ref) => {
       const length = item.JournalEntry.length;
@@ -50,7 +50,7 @@ export const Transaction = React.memo(
                 {item.JournalEntry.map((je, index) => {
                   return (
                     <SimpleGrid columns={2} gap={2} key={index}>
-                      <Box>{je.accountId}</Box>
+                      <Box>{je.name}</Box>
                       <Box>{je.amount}</Box>
                     </SimpleGrid>
                   );

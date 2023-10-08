@@ -12,11 +12,13 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useCallback, useRef, useState, useEffect } from "react";
-import { Transaction } from "./JournalEntry";
+import { useCallback, useRef, useState, useEffect, useMemo } from "react";
+import { JournalEntry } from "./JournalEntry";
 import { z } from "zod";
-import { transactionSchema } from "../../../server/types";
+import { transactionSchema, AccountType } from "../../../server/types";
 import { trpc } from "../utils/trpc";
+
+const monthOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 export const IncomeExpense = () => {
   const { data, isSuccess } = trpc.getTransactions.useQuery();
@@ -24,23 +26,54 @@ export const IncomeExpense = () => {
     Array<
       Omit<z.infer<typeof transactionSchema>, "createdAt"> & {
         createdAt: string;
+        JournalEntry: Array<{
+          accountId: number;
+          amount: number;
+          name: string;
+          type: AccountType;
+        }>;
       }
     >
   >([]);
 
-  const options = [
-    { value: "1", text: "Current Month" },
-    { value: "2", text: "Current Year" },
-    { value: "3", text: "All" },
-  ];
+  const yearsOptions = useMemo(
+    () => [
+      ...new Set(data?.map((item) => new Date(item.createdAt).getFullYear())),
+    ],
+    [data]
+  );
 
-  const [period, setPeriod] = useState<string>(options[0].value);
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(
+    new Date().getFullYear()
+  );
 
-  const [searchText, setSearchText] = useState<string>("");
+  const [selectedMonth, setSelectedMonth] = useState<number | undefined>(
+    new Date().getMonth() + 1
+  );
 
-  const onPeriodChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setPeriod(e.target.value),
-    []
+  const [searchText, setSearchText] = useState<string>();
+
+  const onYearChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = Number(e.target.value);
+      if (value) {
+        setSelectedYear(value);
+      } else {
+        setSelectedYear(undefined);
+      }
+    },
+    [setSelectedYear]
+  );
+  const onMonthChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = Number(e.target.value);
+      if (value) {
+        setSelectedMonth(value);
+      } else {
+        setSelectedMonth(undefined);
+      }
+    },
+    [setSelectedMonth]
   );
   const onSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value),
@@ -61,64 +94,128 @@ export const IncomeExpense = () => {
     // Use those 2 values to update filteredTransactions
     if (!isSuccess) return;
 
-    let filtered;
+    let filtered = data;
 
-    if (period == "1") {
-      filtered = data?.filter(
-        (item) =>
-          new Date(item.createdAt).getMonth() == new Date().getMonth() &&
-          new Date(item.createdAt).getFullYear() == new Date().getFullYear()
+    if (selectedYear) {
+      filtered = filtered.filter(
+        (item) => new Date(item.createdAt).getFullYear() === selectedYear
       );
-    } else if (period == "2") {
-      filtered = data?.filter(
-        (item) =>
-          new Date(item.createdAt).getFullYear() == new Date().getFullYear()
+    }
+
+    if (selectedMonth) {
+      filtered = filtered.filter(
+        (item) => new Date(item.createdAt).getMonth() + 1 === selectedMonth
       );
-    } else {
-      filtered = data;
     }
 
     if (searchText != null) {
       filtered = filtered?.filter(
         (item) =>
-          item.description.toLowerCase().search(searchText.toLowerCase()) != -1
+          item.description.toLowerCase().search(searchText.toLowerCase()) !=
+            -1 ||
+          item.counterparty.toLowerCase().search(searchText.toLowerCase()) != -1
       );
     }
     setFilteredTransactions(filtered);
-  }, [period, isSuccess, searchText]);
+  }, [selectedMonth, selectedYear, isSuccess, searchText]);
+
+  const totalIncome = useMemo(() => {
+    const journalEntries = [];
+    filteredTransactions.forEach((transaction) => {
+      if (transaction.JournalEntry) {
+        journalEntries.push(...transaction.JournalEntry);
+      }
+    });
+    return journalEntries
+      .filter((obj) => obj.type === "INCOME")
+      .reduce((acc, obj) => acc + obj.amount, 0);
+  }, [filteredTransactions]);
+
+  const totalExpense = useMemo(() => {
+    const journalEntries = [];
+    filteredTransactions.forEach((transaction) => {
+      if (transaction.JournalEntry) {
+        journalEntries.push(...transaction.JournalEntry);
+      }
+    });
+    return journalEntries
+      .filter((obj) => obj.type === "EXPENSE")
+      .reduce((acc, obj) => acc + obj.amount, 0);
+  }, [filteredTransactions]);
   return (
     <div>
-      <StatGroup>
-        <Stat>
-          <StatLabel>Total Income</StatLabel>
-          <StatNumber>$3,670</StatNumber>
-        </Stat>
-
-        <Stat>
-          <StatLabel>Total Expense</StatLabel>
-          <StatNumber>$945.90</StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Expense Ratio</StatLabel>
-          <StatNumber>25.7%</StatNumber>
-        </Stat>
-      </StatGroup>
-      <Divider />
-      <Flex gap={4}>
+      <Flex gap={4} my={4}>
         <Box>
-          <Select value={period} onChange={onPeriodChange}>
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.text}
+          <Text>Year</Text>
+          <Select value={selectedYear} onChange={onYearChange}>
+            <option key="All" value={undefined}>
+              All
+            </option>
+            {yearsOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
               </option>
             ))}
           </Select>
-          <Text>Donut Chart</Text>
+          <Text>Month</Text>
+          <Select value={selectedMonth} onChange={onMonthChange}>
+            <option key={"all"} value={undefined}>
+              All
+            </option>
+            {monthOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
         </Box>
         <Box flex="1">
-          <Text>Time Series</Text>
+          <StatGroup>
+            <Stat>
+              <StatLabel>Total Income</StatLabel>
+              <StatNumber>
+                {Math.abs(totalIncome)?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "SGD",
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </StatNumber>
+            </Stat>
+
+            <Stat>
+              <StatLabel>Total Expense</StatLabel>
+              <StatNumber>
+                {" "}
+                {Math.abs(totalExpense)?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "SGD",
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </StatNumber>
+            </Stat>
+            <Stat>
+              <StatLabel>Expense Ratio</StatLabel>
+              <StatNumber>
+                {" "}
+                {Math.abs(totalExpense / totalIncome)?.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </StatNumber>
+            </Stat>
+          </StatGroup>
+          <Divider />
+          <Box>
+            <Flex>
+              <Text>Donut Chart</Text>
+              <Text flex="1">Time Series</Text>
+            </Flex>
+          </Box>
         </Box>
       </Flex>
+
       <Flex>
         <Input
           value={searchText}
@@ -148,7 +245,7 @@ export const IncomeExpense = () => {
           }}
         >
           {virtualizer.getVirtualItems().map((virtualItem) => (
-            <Transaction
+            <JournalEntry
               key={virtualItem.key}
               virtualItem={virtualItem}
               item={
