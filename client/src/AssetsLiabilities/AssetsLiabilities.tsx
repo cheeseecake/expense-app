@@ -7,27 +7,54 @@ import {
   StatGroup,
   Flex,
   Divider,
-  Select,
+  Input,
   useToast,
   SimpleGrid,
+  Select,
 } from "@chakra-ui/react";
 import { Account } from "./Account";
 import { trpc } from "../utils/trpc";
 import { AccountType } from "../../../server/types";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo, useEffect } from "react";
 
 export const Accounts = () => {
   const toast = useToast();
   const utils = trpc.useContext();
 
-  const accountList = trpc.getAccounts.useQuery();
-  const options = [
-    { value: "1", text: "Current Month" },
-    { value: "2", text: "Current Year" },
-    { value: "3", text: "All" },
-  ];
+  const accountTypes = ["ALL", "ASSET", "LIABILITY", "INCOME", "EXPENSE"];
+  const [accountType, setAccountType] = useState<string>();
 
-  const [period, setPeriod] = useState<string>(options[0].value);
+  const { data, isSuccess } = trpc.getAccounts.useQuery();
+
+  const [filteredAccounts, setFilteredAccounts] = useState<
+    Array<{
+      accountId: number;
+      amount: number;
+      name: string;
+      type: AccountType;
+    }>
+  >([]);
+
+  const [searchText, setSearchText] = useState<string>();
+
+  const totalAssets = useMemo(() => {
+    return data?.reduce((acc, obj) => {
+      if (obj.type === "ASSET") {
+        return acc + obj.sum;
+      }
+      return acc;
+    }, 0);
+  }, [data]);
+
+  const totalLiabilities = useMemo(() => {
+    return data?.reduce((acc, obj) => {
+      if (obj.type === "LIABILITY") {
+        return acc + obj.sum;
+      }
+      return acc;
+    }, 0);
+  }, [data]);
+
   const accountRemover = trpc.deleteAccountById.useMutation({
     // Refresh acccounts upon mutation
     onSuccess: () => {
@@ -49,45 +76,101 @@ export const Accounts = () => {
   const handleDelete = useCallback((id: number) => {
     accountRemover.mutate(id);
   }, []);
-  const onPeriodChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setPeriod(e.target.value),
+
+  const onSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value),
     []
   );
+  const onAccountTypeChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      if (e.target.value != "ALL") {
+        setAccountType(e.target.value);
+      } else {
+        setAccountType(undefined);
+      }
+    },
+    [setAccountType]
+  );
+  useEffect(() => {
+    if (!isSuccess) return;
+
+    let filtered = data;
+    if (accountType != undefined) {
+      filtered = filtered?.filter((item) => item.type === accountType);
+    }
+    if (searchText != null) {
+      filtered = filtered?.filter(
+        (item) =>
+          item.name.toLowerCase().search(searchText.toLowerCase()) != -1 ||
+          item.name.toLowerCase().search(searchText.toLowerCase()) != -1
+      );
+    }
+    setFilteredAccounts(filtered);
+  }, [isSuccess, searchText, accountType]);
+
   return (
     <div>
-      <StatGroup>
-        <Stat>
-          <StatLabel>Total Assets</StatLabel>
-          <StatNumber>$3,670</StatNumber>
-        </Stat>
-
-        <Stat>
-          <StatLabel>Total Liabilities</StatLabel>
-          <StatNumber>$945.90</StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Investment Ratio</StatLabel>
-          <StatNumber>25.7%</StatNumber>
-        </Stat>
-      </StatGroup>
-      <Divider />
-      <Flex gap={4}>
-        <Box>
-          <Select value={period} onChange={onPeriodChange}>
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.text}
-              </option>
-            ))}
-          </Select>
-          <Text>Donut Chart</Text>
-        </Box>
+      <Flex gap={4} my={4}>
         <Box flex="1">
-          <Text>Time Series</Text>
+          <StatGroup>
+            <Stat>
+              <StatLabel>Total Assets</StatLabel>
+              <StatNumber>
+                {Math.abs(totalAssets)?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "SGD",
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+                <Text>Donut Chart</Text>
+              </StatNumber>
+            </Stat>
+
+            <Stat>
+              <StatLabel>Total Liabilities</StatLabel>
+              <StatNumber>
+                {Math.abs(totalLiabilities)?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "SGD",
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+                <Text>Donut Chart</Text>
+              </StatNumber>
+            </Stat>
+            <Stat>
+              <StatLabel>Asset to Liability Ratio</StatLabel>
+              <StatNumber>
+                {Math.abs(totalAssets / totalLiabilities)?.toLocaleString(
+                  "en-US",
+                  {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }
+                )}
+              </StatNumber>
+            </Stat>
+          </StatGroup>
+          <Divider />
         </Box>
       </Flex>
-      <SimpleGrid spacing={4} columns={4}>
-        {accountList.data?.map(({ name, type, currency, sum, id }) => (
+      <Flex gap={4}>
+        <Select value={accountType} onChange={onAccountTypeChange}>
+          {accountTypes.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </Select>
+        <Input
+          value={searchText}
+          onChange={onSearchChange}
+          placeholder="Search..."
+          size="sm"
+        />
+      </Flex>
+      <SimpleGrid spacing={4} columns={3} my={4}>
+        {filteredAccounts.map(({ name, type, currency, sum, id }) => (
           <Account
             name={name}
             currency={currency}
