@@ -23,7 +23,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-prisma/expense-app.db
-prisma/expense-app.db-journal
+server/prisma/expense-app.db
+server/prisma/expense-app.db-journal
 package-lock.json
-prisma/data
+server/prisma/data
+server/prisma/migrations
+server/prisma/seed.ts

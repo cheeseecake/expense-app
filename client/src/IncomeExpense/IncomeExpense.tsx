@@ -15,7 +15,6 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCallback, useRef, useState, useEffect, useMemo } from "react";
 import { JournalEntry } from "./JournalEntry";
 import { z } from "zod";
-import { transactionSchema, AccountType } from "../../../server/types";
 import { trpc } from "../utils/trpc";
 
 const monthOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -134,8 +133,8 @@ export const IncomeExpense = () => {
   const totalExpense = useMemo(() => {
     const journalEntries = [];
     filteredTransactions.forEach((transaction) => {
-      if (transaction.JournalEntry) {
-        journalEntries.push(...transaction.JournalEntry);
+      if (transaction.journalEntries) {
+        journalentries.push(...transaction.JournalEntry);
       }
     });
     return journalEntries

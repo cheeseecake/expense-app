@@ -8,6 +8,7 @@ import {
   TabPanel,
   TabList,
   TabPanels,
+  Image,
 } from "@chakra-ui/react";
 
 import { GetDbsStatementButton } from "./Forms/GetDbsStatementButton";
@@ -22,6 +23,7 @@ export const Home = () => {
   return (
     <Container maxW="80%" padding="4" centerContent>
       <Flex gap={4} w="100%">
+        <Image boxSize="50px" src="../public/capoo.gif" alt="capoo" />
         <Heading>{date.toDateString()}</Heading>
         <Spacer />
         <Form />
@@ -35,7 +37,7 @@ export const Home = () => {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <IncomeExpense />
+              {/* <IncomeExpense /> */}
             </TabPanel>
             <TabPanel>
               <Accounts />

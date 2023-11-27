@@ -9,38 +9,37 @@ import {
   Button,
   Divider,
 } from "@chakra-ui/react";
-import { AccountType } from "../../../server/types";
 import React from "react";
 
 type InputProps = {
-  name: string;
-  type: AccountType;
-  sum: number;
+  account: string;
+  type: number;
   currency: string;
+  category: string;
+  sum: number;
   id: number;
-  handleDelete: (id: number) => void;
 };
 
 export const Account = React.memo(
-  ({ name, type, currency, sum, id, handleDelete }: InputProps) => {
+  ({ account, type, category, currency, sum, id }: InputProps) => {
     return (
       <Card
         maxW="sm"
         variant="elevated"
         style={{
           backgroundColor:
-            type === "ASSET"
+            type === 1
               ? "#2E4057"
-              : type === "EXPENSE"
+              : type === 4
               ? "#7B435B"
-              : type === "INCOME"
+              : type === 3
               ? "#095256"
               : "#2B303A",
         }}
       >
         <CardBody>
           <Stack spacing="3">
-            <Heading size="md">{name} </Heading>
+            <Heading size="md">{account} ({category})</Heading>
             <Text fontSize="xl">
               {currency}{" "}
               {sum.toLocaleString("en-US", {
@@ -54,9 +53,6 @@ export const Account = React.memo(
         <CardFooter>
           <ButtonGroup spacing="2">
             <Button variant="solid">Breakdown</Button>
-            <Button variant="ghost" onClick={() => handleDelete(id)}>
-              Delete
-            </Button>
           </ButtonGroup>
         </CardFooter>
       </Card>

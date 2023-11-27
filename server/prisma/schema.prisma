@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./expense-app.db"
+}
+
+model Type {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  categories Category[]
+}
+
+model Category {
+  id       Int    @id @default(autoincrement())
+  category String
+  typeId   Int
+  accounts Account[]
+  typeRef      Type   @relation(fields: [typeId], references: [id])
+  @@unique([category, typeId])
+}
+
+model Currency {
+  id       Int    @id @default(autoincrement())
+  currency String @unique
+  Account Account[]
+}
+
+model Account {
+  id           Int          @id @default(autoincrement())
+  account      String
+  categoryId   Int
+  currencyId   Int
+  journalEntries JournalEntry[]
+
+  categoryRef     Category     @relation(fields: [categoryId], references: [id])
+  currencyRef     Currency     @relation(fields: [currencyId], references: [id])
+    @@unique([categoryId, currencyId, account])
+}
+
+model Transaction {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  description  String
+  counterparty String
+  journalEntries JournalEntry[]
+}
+
+model JournalEntry {
+  id            Int         @id @default(autoincrement())
+  amount        Float
+  accountId     Int
+  transactionId Int
+  account       Account     @relation(fields: [accountId], references: [id])
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+}
