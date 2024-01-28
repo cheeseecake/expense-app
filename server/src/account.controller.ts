@@ -99,7 +99,7 @@ export const findAccountController = async ({
 
 export const findAllAccountsController = async () => {
   try {
-    const raw_accounts = await prisma.account.findMany({
+    const accounts = await prisma.account.findMany({
       orderBy: [
         {
           categoryId: "asc",
@@ -109,20 +109,9 @@ export const findAllAccountsController = async () => {
         },
       ],
       include: {
-        journalEntries: true,
         currencyRef: true,
-        categoryRef: true
       },
     });
-    const accounts = raw_accounts.map((item) => ({
-      id: item.id,
-      account: item.account,
-      category: item.categoryRef.category,
-      type: item.categoryRef.typeId,
-      currency: item.currencyRef.currency,
-      sum: item.journalEntries.reduce((sum, je) => sum + je.amount, 0),
-    }));
-
     return {
       status: "success",
       results: accounts.length,

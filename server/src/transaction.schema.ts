@@ -6,9 +6,7 @@
 import { z } from "zod";
 
 export const createTransactionSchema = z.object({
-  createdAt: z.coerce
-    .date()
-    .min(new Date("2000-01-01"), { message: "Invalid date!" }),
+  createdAt: z.coerce.date(),
   description: z.string().min(10, { message: "Required" }).trim(),
   counterparty: z.string().min(1, { message: "Required" }).trim().toUpperCase(),
   journalEntries: z
@@ -44,7 +42,7 @@ export const updateTransactionSchema = z.object({
       createdAt: z.date(),
       description: z.string(),
       counterparty: z.string(),
-      journalEntries: z.array({
+      journalEntries: z.object({
         accountId: z.number(),
         amount: z.number(),
       }),

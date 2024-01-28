@@ -18,7 +18,12 @@ export const createTransactionController = async ({
         createdAt: input.createdAt,
         description: input.description,
         counterparty: input.counterparty,
-        journalEntries: input.journalEntries,
+        journalEntries: {
+          create: input.journalEntries,
+        },
+      },
+      include: {
+        journalEntries: true,
       },
     });
 
@@ -107,7 +112,15 @@ export const findAllTransactionsController = async () => {
         },
       ],
       include: {
-        journalEntries: true, // Include the related journal entries
+        journalEntries: {
+          include: {
+            account: {
+              include: {
+                categoryRef: true,
+              },
+            },
+          },
+        },
       },
     });
 

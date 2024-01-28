@@ -1,9 +1,11 @@
 import { z } from "zod";
 
 export const createAccountSchema = z.object({
-  account: z.string({
-    required_error: "Name is required",
-  }),
+  account: z
+    .string({
+      required_error: "Name is required",
+    })
+    .toUpperCase(),
   currencyId: z.coerce.number({ required_error: "Currency is required" }).int(),
   categoryId: z.coerce.number({ required_error: "Category is required" }).int(),
 });

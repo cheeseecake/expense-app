@@ -3,8 +3,6 @@ import {
   StatLabel,
   StatNumber,
   Box,
-  StatHelpText,
-  StatArrow,
   StatGroup,
   Flex,
   Divider,
@@ -14,7 +12,7 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { Account } from "./Account";
-import { PieChart, Pie, Tooltip, Label, LabelList } from "recharts";
+import { PieChart, Pie, Tooltip, Label } from "recharts";
 import { trpc } from "../utils/trpc";
 import { useCallback, useState, useMemo, useEffect } from "react";
 

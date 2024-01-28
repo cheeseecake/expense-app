@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCallback, useRef, useState, useEffect, useMemo } from "react";
-import { JournalEntry } from "./JournalEntry";
+import { JournalEntry } from "../Transactions/JournalEntry";
 import { z } from "zod";
 import { trpc } from "../utils/trpc";
 
@@ -25,7 +25,7 @@ export const IncomeExpense = () => {
     Array<
       Omit<z.infer<typeof transactionSchema>, "createdAt"> & {
         createdAt: string;
-        JournalEntry: Array<{
+        journalEntries: Array<{
           accountId: number;
           amount: number;
           name: string;
@@ -37,7 +37,9 @@ export const IncomeExpense = () => {
 
   const yearsOptions = useMemo(
     () => [
-      ...new Set(data?.map((item) => new Date(item.createdAt).getFullYear())),
+      ...new Set(
+        data?.transactions.map((item) => new Date(item.createdAt).getFullYear())
+      ),
     ],
     [data]
   );
@@ -93,7 +95,7 @@ export const IncomeExpense = () => {
     // Use those 2 values to update filteredTransactions
     if (!isSuccess) return;
 
-    let filtered = data;
+    let filtered = data?.transactions;
 
     if (selectedYear) {
       filtered = filtered.filter(
@@ -121,8 +123,8 @@ export const IncomeExpense = () => {
   const totalIncome = useMemo(() => {
     const journalEntries = [];
     filteredTransactions.forEach((transaction) => {
-      if (transaction.JournalEntry) {
-        journalEntries.push(...transaction.JournalEntry);
+      if (transaction.journalEntries) {
+        journalEntries.push(...transaction.journalEntries);
       }
     });
     return journalEntries
@@ -134,7 +136,7 @@ export const IncomeExpense = () => {
     const journalEntries = [];
     filteredTransactions.forEach((transaction) => {
       if (transaction.journalEntries) {
-        journalentries.push(...transaction.JournalEntry);
+        journalEntries.push(...transaction.journalEntries);
       }
     });
     return journalEntries
@@ -214,50 +216,6 @@ export const IncomeExpense = () => {
           </Box>
         </Box>
       </Flex>
-
-      <Flex>
-        <Input
-          value={searchText}
-          onChange={onSearchChange}
-          placeholder="Search..."
-          size="sm"
-        />
-      </Flex>
-
-      {/* Viewport Div. What the user can see.*/}
-      <div
-        ref={parentRef}
-        style={{
-          height: 400,
-          width: "100%",
-          overflow: "auto",
-          contain: "strict",
-        }}
-      >
-        {/* Content Div. Must be large enough to hold everything. Can be larger than the Viewport Div.*/}
-        <Container
-          style={{
-            height: virtualizer.getTotalSize(),
-            position: "relative", // So that children will be positioned relatively
-
-            maxWidth: "100%",
-          }}
-        >
-          {virtualizer.getVirtualItems().map((virtualItem) => (
-            <JournalEntry
-              key={virtualItem.key}
-              virtualItem={virtualItem}
-              item={
-                filteredTransactions[virtualItem.index] as Omit<
-                  z.infer<typeof transactionSchema>,
-                  "createdAt"
-                > & { createdAt: string }
-              }
-              ref={virtualizer.measureElement}
-            />
-          ))}
-        </Container>
-      </div>
     </div>
   );
 };

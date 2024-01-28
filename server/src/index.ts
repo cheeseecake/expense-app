@@ -23,6 +23,13 @@ import {
   findAccountController,
   updateAccountController,
 } from "./account.controller";
+import { createCategorySchema, createCurrencySchema } from "./other.schema";
+import {
+  createCategoryController,
+  createCurrencyController,
+  findAllCategoriesController,
+  findAllCurrenciesController,
+} from "./other.controller";
 
 const t = initTRPC.create();
 
@@ -58,7 +65,7 @@ const appRouter = router({
     .input(paramsInput)
     .query(({ input }) => findTransactionController({ paramsInput: input })),
   getTransactions: t.procedure.query(() => findAllTransactionsController()),
-  createAcc: t.procedure
+  createAccount: t.procedure
     .input(createAccountSchema)
     .mutation(({ input }) => createAccountController({ input })),
   updateAccount: t.procedure.input(updateAccountSchema).mutation(({ input }) =>
@@ -74,6 +81,14 @@ const appRouter = router({
     .input(paramsInput)
     .query(({ input }) => findAccountController({ paramsInput: input })),
   getAccounts: t.procedure.query(() => findAllAccountsController()),
+  createCategory: t.procedure
+    .input(createCategorySchema)
+    .mutation(({ input }) => createCategoryController({ input })),
+  getCategories: t.procedure.query(() => findAllCategoriesController()),
+  createCurrency: t.procedure
+    .input(createCurrencySchema)
+    .mutation(({ input }) => createCurrencyController({ input })),
+  getCurrencies: t.procedure.query(() => findAllCurrenciesController()),
 });
 
 /* Export only the type */
