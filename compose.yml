@@ -9,7 +9,7 @@ services:
       # This must be the same as the downloadPath in puppeteer
       WORKSPACE_DIR: /tmp
 
-  # We only run the server. The client should be hosted on Github Pages.
+  # Run both server and frontend
   node:
     container_name: node
     image: node:latest
@@ -17,4 +17,7 @@ services:
       TZ: Asia/Singapore
     volumes:
       - .:/workspace
-    command: /bin/sh -c "cd /workspace && npm run dev:server"
+    command: /bin/sh -c "cd /workspace && npm run dev"
+    ports:
+      - "2022:2022" # expose backend port, otherwise your browser can't access the server
+      - "3000:3000"

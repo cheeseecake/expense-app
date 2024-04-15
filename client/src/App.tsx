@@ -10,7 +10,7 @@ export const App = () => {
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: "http://localhost:2022",
+          url: "http://chanel-server:2022",
         }),
       ],
     })
