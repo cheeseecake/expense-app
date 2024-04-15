@@ -1,4 +1,5 @@
-import { Form } from "./Forms/AddForm";
+import { AddForm } from "./Forms/AddForm";
+import { UploadTransactionsForm } from "./Forms/UploadTransactionsForm";
 import React from "react";
 
 import { z } from "zod";
@@ -23,7 +24,7 @@ export const TransactionsOverview = React.memo(
     ({ filteredTransactions }: InputProps) => {
       return (
         <>
-          <Form />
+          <AddForm />{' '}<UploadTransactionsForm />
         </>
       );
     }

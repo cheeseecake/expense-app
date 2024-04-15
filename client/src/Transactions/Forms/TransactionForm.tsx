@@ -9,15 +9,17 @@ import {
   useToast,
   Select,
 } from "@chakra-ui/react";
-import { zodResolver } from "@hookform/resolvers/zod";
+
+import React from "react";
 import { useState, useEffect } from "react";
-import { z } from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { trpc } from "../../utils/trpc";
 import { createTransactionSchema } from "../../../../server/src/transaction.schema";
-import React from "react";
-import { JournalEntryForm } from "./JournalEntryForm";
 import { createCategorySchema } from "../../../../server/src/other.schema";
+
+import { JournalEntryForm } from "./JournalEntryForm";
 
 type InputProps = {
   categories: Array<

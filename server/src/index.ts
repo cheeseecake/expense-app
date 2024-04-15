@@ -7,6 +7,7 @@ import {
   paramsInput,
   updateTransactionSchema,
   createTransactionSchema,
+  uploadTransactionSchema,
 } from "./transaction.schema";
 import {
   createTransactionController,
@@ -14,6 +15,7 @@ import {
   findAllTransactionsController,
   findTransactionController,
   updateTransactionController,
+  uploadTransactionController,
 } from "./transaction.controller";
 import { updateAccountSchema, createAccountSchema } from "./account.schema";
 import {
@@ -42,6 +44,9 @@ const appRouter = router({
   getHello: t.procedure.query((req) => {
     return { message: "Welcome to Full-Stack tRPC CRUD App" };
   }),
+  uploadTransactionJSON: publicProcedure
+    .input(uploadTransactionSchema)
+    .mutation(async (input) => await uploadTransactionController(input)),
   getDbsStatementAsCsv: publicProcedure
     .input(getDbsStatementSchema)
     .mutation(async ({ input }) => await getDbsStatementAsCsv(input)),

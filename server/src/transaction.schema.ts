@@ -49,7 +49,21 @@ export const updateTransactionSchema = z.object({
     })
     .partial(),
 });
+export const uploadTransactionSchema = z.array(
+  z.object({
+    createdAt: z.string().regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/),
+    description: z.string(),
+    counterparty: z.string(),
+    JournalEntry: z.array(
+      z.object({
+        accountId: z.number().int(),
+        amount: z.number(),
+      })
+    ),
+  })
+);
 
 export type createTransactionSchema = z.TypeOf<typeof createTransactionSchema>;
 export type updateTransactionSchema = z.TypeOf<typeof updateTransactionSchema>;
+export type uploadTransactionSchema = z.TypeOf<typeof uploadTransactionSchema>;
 export type paramsInput = z.TypeOf<typeof paramsInput>;

@@ -1,10 +1,12 @@
 import { Prisma } from "@prisma/client";
+import fs from "fs";
 import { TRPCError } from "@trpc/server";
 import { prisma } from "./index";
 import {
   paramsInput,
   updateTransactionSchema,
   createTransactionSchema,
+  uploadTransactionSchema,
 } from "./transaction.schema";
 
 export const createTransactionController = async ({
@@ -133,7 +135,37 @@ export const findAllTransactionsController = async () => {
     throw error;
   }
 };
-
+export const uploadTransactionController = async ({
+  input,
+}: {
+  input: uploadTransactionSchema;
+}) => {
+  try {
+    console.log(input);
+    for (const row of input) {
+      await prisma.transaction.create({
+        data: {
+          createdAt: new Date(row.createdAt),
+          description: row.description,
+          counterparty: row.counterparty,
+          journalEntries: {
+            create: row.JournalEntry,
+          },
+        },
+        include: {
+          journalEntries: true,
+        },
+      });
+    }
+    return {
+      status: "success",
+      results: input.length,
+      input,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
 export const deleteTransactionController = async ({
   paramsInput,
 }: {

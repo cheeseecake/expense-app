@@ -20,7 +20,7 @@ import { CurrencyForm } from "./CurrencyForm";
 import { trpc } from "../../utils/trpc";
 import { createCategorySchema } from "../../../../server/src/other.schema";
 
-export const Form = () => {
+export const AddForm = () => {
   const [opened, setOpened] = useState(false);
    const { data, isSuccess } = trpc.getCategories.useQuery();
 
